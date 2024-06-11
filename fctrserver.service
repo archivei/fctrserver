@@ -1,0 +1,15 @@
+[Unit]
+Description=LinuxGSM Factorio Server
+After=network-online.target
+
+[Service]
+Type=forking
+User=fctrserver
+WorkingDirectory=/home/fctrserver
+ExecStart=/home/fctrserver/fctrserver start
+ExecStop=/home/fctrserver/fctrserver stop
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
