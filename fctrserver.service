@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 User=fctrserver
-ExecStart=/home/fctrserver/factorio/bin/x64/factorio --start-server-load-latest --server-settings /home/fctrserver/factorio/data/server-settings.json
+ExecStart=/home/fctrserver/factorio/bin/x64/factorio --start-server-load-latest --server-settings /home/fctrserver/factorio/data/server-settings.json --rcon-port 27015 --rcon-password your_rcon_password
 Restart=always
 RestartSec=5s
 
