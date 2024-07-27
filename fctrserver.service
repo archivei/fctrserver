@@ -1,5 +1,5 @@
 [Unit]
-Description=Headless Factorio Server
+Description=Factorio Server
 After=network-online.target
 
 [Service]
