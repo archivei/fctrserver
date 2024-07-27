@@ -1,13 +1,10 @@
 [Unit]
-Description=LinuxGSM Factorio Server
+Description=Headless Factorio Server
 After=network-online.target
 
 [Service]
-Type=forking
 User=fctrserver
-WorkingDirectory=/home/fctrserver
-ExecStart=/home/fctrserver/fctrserver start
-ExecStop=/home/fctrserver/fctrserver stop
+ExecStart=/home/fctrserver/factorio/bin/x64/factorio --start-server-load-latest --server-settings /home/fctrserver/factorio/data/server-settings.json
 Restart=always
 RestartSec=5s
 
