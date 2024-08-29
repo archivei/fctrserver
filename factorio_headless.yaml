@@ -30,6 +30,9 @@ write_files:
       ExecStart=/srv/factorio/run.sh
       Restart=always
       RestartSec=5s
+      TimeoutStopSec=300
+      KillSignal=SIGINT
+      KillMode=control-group
 
       [Install]
       WantedBy=multi-user.target
