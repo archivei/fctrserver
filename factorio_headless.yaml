@@ -1,0 +1,65 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+users:
+  - name: factorio
+    shell: /bin/false
+    lock_passwd: false
+    plain_text_passwd: {{PASSWORD}}
+
+write_files:
+  - path: /etc/ssh/sshd_config
+    append: true
+    content: |
+      Match User factorio
+          ChrootDirectory /srv
+          ForceCommand internal-sftp
+          AllowTcpForwarding no
+          X11Forwarding no
+
+  - path: /etc/systemd/system/factorio.service
+    content: |
+      [Unit]
+      Description=Factorio Server
+      After=network-online.target
+
+      [Service]
+      User=factorio
+      WorkingDirectory=/srv/factorio
+      ExecStart=/srv/factorio/run.sh
+      Restart=always
+      RestartSec=5s
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  # Set permissions for /srv directory
+  - chown root:root /srv
+  - chmod 755 /srv
+
+  # Download and extract Factorio
+  - wget -O /srv/factorio_headless.tar.xz {{FACTORIO_URL}}
+  - tar -xf /srv/factorio_headless.tar.xz -C /srv/
+
+  # Generate the initial save
+  - /srv/factorio/bin/x64/factorio --create /srv/factorio/saves/save.zip
+
+  # Create the run.sh script
+  - echo '#!/bin/bash' > /srv/factorio/run.sh
+  - echo './bin/x64/factorio --start-server-load-latest' >> /srv/factorio/run.sh
+  - chmod +x /srv/factorio/run.sh
+
+  # Set ownership and permissions for Factorio files
+  - chown -R factorio:factorio /srv/factorio
+  - chmod -R 755 /srv/factorio
+
+  # Enable and start the Factorio service
+  - systemctl restart sshd
+  - systemctl daemon-reload
+  - systemctl enable factorio.service
+  - systemctl start factorio.service
+
+  # Reboot the server
+  - reboot
