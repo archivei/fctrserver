@@ -27,7 +27,7 @@ write_files:
       [Service]
       User=factorio
       WorkingDirectory=/srv/factorio
-      ExecStart=/srv/factorio/run.sh
+      ExecStart=/srv/factorio/start.sh
       Restart=always
       RestartSec=5s
       TimeoutStopSec=300
@@ -49,10 +49,10 @@ runcmd:
   # Generate the initial save
   - /srv/factorio/bin/x64/factorio --create /srv/factorio/saves/save.zip
 
-  # Create the run.sh script
-  - echo '#!/bin/bash' > /srv/factorio/run.sh
-  - echo './bin/x64/factorio --start-server-load-latest' >> /srv/factorio/run.sh
-  - chmod +x /srv/factorio/run.sh
+  # Create the start.sh script
+  - echo '#!/bin/bash' > /srv/factorio/start.sh
+  - echo './bin/x64/factorio --start-server-load-latest' >> /srv/factorio/start.sh
+  - chmod +x /srv/factorio/start.sh
 
   # Set ownership and permissions for Factorio files
   - chown -R factorio:factorio /srv/factorio
