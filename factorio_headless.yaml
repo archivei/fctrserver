@@ -5,8 +5,7 @@ package_upgrade: true
 users:
   - name: factorio
     shell: /bin/false
-    lock_passwd: false
-    plain_text_passwd: {{PASSWORD}}
+    ssh_authorized_keys: {{SSH_AUTHORIZED_KEYS}}
 
 write_files:
   - path: /etc/ssh/sshd_config
