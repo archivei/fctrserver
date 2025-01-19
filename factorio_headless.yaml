@@ -1,30 +1,26 @@
-#cloud-config
 package_update: true
 package_upgrade: true
-
 users:
-  - name: factorio
+  - name: sftpuser
     shell: /bin/false
-    ssh_authorized_keys: {{SSH_AUTHORIZED_KEYS}}
-
+    ssh_authorized_keys: []
 write_files:
   - path: /etc/ssh/sshd_config
     append: true
     content: |
-      Match User factorio
+      Match User sftpuser
           ChrootDirectory /srv
           ForceCommand internal-sftp
           AllowTcpForwarding no
           X11Forwarding no
-
   - path: /etc/systemd/system/factorio.service
     content: |
       [Unit]
-      Description=Factorio Server
       After=network-online.target
+      Wants=network-online.target
 
       [Service]
-      User=factorio
+      User=sftpuser
       WorkingDirectory=/srv/factorio
       ExecStart=/srv/factorio/start.sh
       Restart=always
@@ -35,40 +31,27 @@ write_files:
 
       [Install]
       WantedBy=multi-user.target
-
 runcmd:
-  # Set permissions for /srv directory
   - chown root:root /srv
   - chmod 755 /srv
-
-  # Download and extract Factorio
-  - wget -O /srv/factorio_headless.tar.xz {{FACTORIO_URL}}
+  - wget -O /srv/factorio_headless.tar.xz
+    https://www.factorio.com/get-download/latest/headless/linux64
   - tar -xf /srv/factorio_headless.tar.xz -C /srv/
-
-  # Generate the initial save
+  - rm /srv/factorio_headless.tar.xz
   - /srv/factorio/bin/x64/factorio --create /srv/factorio/saves/save.zip
-
-  # Create the start.sh script
   - echo '#!/bin/bash' > /srv/factorio/start.sh
-  - echo './bin/x64/factorio --start-server-load-latest' >> /srv/factorio/start.sh
+  - echo './bin/x64/factorio --start-server /srv/factorio/saves/save.zip' >>
+    /srv/factorio/start.sh
   - chmod +x /srv/factorio/start.sh
-
-  # Set ownership and permissions for Factorio files
-  - chown -R factorio:factorio /srv/factorio
+  - chown -R sftpuser:sftpuser /srv/factorio
   - chmod -R 755 /srv/factorio
-
-  # Create and enable a swap file of 8GB
   - fallocate -l 8G /swapfile
   - chmod 600 /swapfile
   - mkswap /swapfile
   - swapon /swapfile
   - echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
-
-  # Enable and start the Factorio service
   - systemctl restart sshd
   - systemctl daemon-reload
   - systemctl enable factorio.service
   - systemctl start factorio.service
-
-  # Reboot the server
   - reboot
